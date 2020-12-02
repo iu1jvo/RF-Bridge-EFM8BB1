@@ -52,7 +52,7 @@ def filterInputStr(auxStr):
         iPosStart = auxStr.find('AAB1')
         if iPosStart > -1:
             auxStr = auxStr[iPosStart:iPosEnd+len('55')]
-            print(('Filtered 0xB1 data: ' + auxStr))
+            print('Filtered 0xB1 data: ' + auxStr)
         else:
             auxStr = ""
     else:
@@ -61,7 +61,7 @@ def filterInputStr(auxStr):
 
 def getInputStr():
     #auxStr = '18:30:23 MQT: /sonoff/bridge/RESULT = {"RfRaw":{"Data":"AA B1 04 0224 03FB 0BF4 1CAC 01101001100101011010100110010101101010010110011023 55"}}'
-    auxStr = input("Enter B1 line: ")
+    auxStr = raw_input("Enter B1 line: ")
     auxStr = filterInputStr(auxStr)
     return auxStr
 
@@ -88,7 +88,7 @@ def DrawImage(buckets, data):
     repeats = 2
 
     if (options.debug):
-        print(("DrawImage, try to draw a image of: " + data))
+        print("DrawImage, try to draw a image of: " + data)
 
     for i in range(0, len(data)):
         if ((int(data[i:i+1], 16) & 0x08) != 0):
@@ -154,7 +154,7 @@ def DrawImage(buckets, data):
             import webbrowser
             webbrowser.open(filename)
         except:
-            print(("Saved oscilloscope screen to " + filename))
+            print("Saved oscilloscope screen to " + filename)
 
 def findSyncPattern(szData):    
     syncData = None
@@ -185,16 +185,16 @@ def findSyncPattern(szData):
 
         if (options.debug):
             print("Second sync bucket is on end")
-            print(("Sync buckets: " + szData[-2:]))   
-            print(("New data: " + syncData))
+            print("Sync buckets: " + szData[-2:])   
+            print("New data: " + syncData)
 
     elif bucketAtFront:
         syncData = szData[-1:] + szData[0:-1]
 
         if (options.debug):        
             print("Second sync bucket is in front")
-            print(("Sync buckets: " + szData[-1:] + szData[0:1]))        
-            print(("New data: " + syncData))        
+            print("Sync buckets: " + szData[-1:] + szData[0:1])        
+            print("New data: " + syncData)        
 
     return syncData
 
@@ -223,7 +223,7 @@ def decodeBuckets(buckets, data):
         bit1_mask = "10"
 
     if (options.debug):
-        print(("Bitcount: %d" % ((len(data)) / 2)))
+        print("Bitcount: %d" % ((len(data)) / 2))
 
     code = ""
 
@@ -237,16 +237,16 @@ def decodeBuckets(buckets, data):
 
 def main(szInpStr, repVal):
     if (options.debug):
-        print(("%s" % szInpStr))
+        print("%s" % szInpStr)
 
     if (options.verbose):
-        print(("Repeat: %d" % repVal))
+        print("Repeat: %d" % repVal)
 
     iNbrOfBuckets = int(szInpStr[4:6], 16)
     arrBuckets = []
 
     if (options.verbose):
-        print(("Number of buckets: %d" % iNbrOfBuckets))
+        print("Number of buckets: %d" % iNbrOfBuckets)
 
     # Start packing
     szOutAux = " %0.2X " % iNbrOfBuckets
@@ -264,7 +264,7 @@ def main(szInpStr, repVal):
         DrawImage(arrBuckets, syncData)
         szBits = decodeBuckets(arrBuckets, syncData[2:])
         if (szBits != None):
-            print(("Decoded value: " + szBits))
+            print("Decoded value: " + szBits)
     else:
         DrawImage(arrBuckets, szInpStr[10+i*4:-2])
         szOutAux += szInpStr[10+i*4:-2]
@@ -277,7 +277,7 @@ def main(szInpStr, repVal):
     if (options.device):
         sendCommand(szOutAux, options.device)
 
-    print(("Resulting 0xB0 data: " + szOutAux))
+    print("Resulting 0xB0 data: " + szOutAux)
     return szOutAux
 
 def parse_file(fn):
@@ -285,7 +285,7 @@ def parse_file(fn):
     with open(fn) as f:
         for line in f:
             if '{"RfRaw":{"Data":"AA B1' in line:
-                print(("###### Processing line {0} ######".format(line)))
+                print("###### Processing line {0} ######".format(line))
                 res=main(filterInputStr(line)
                          , options.repeat)
                 if options.device:
@@ -294,13 +294,13 @@ def parse_file(fn):
                     strInput = input().replace(" ","")
                     if len(strInput)>0:
                         commands[strInput]=res
-            else: print(("###### Skipping line '{0}' ######".format(line)))
+            else: print("###### Skipping line '{0}' ######".format(line))
     if options.device:
-        print(("Successful commands were: {0}".format(commands)))
+        print("Successful commands were: {0}".format(commands))
         print("Do you want to test these commands now? (y/n)")
         if input().lower()=='y':
-            for key,value in list(commands.items()):
-                print(("Sending command {0}".format(key)))
+            for key,value in commands.items():
+                print("Sending command {0}".format(key))
                 sendCommand(value, options.device)
                 sleep(4)
 
@@ -337,10 +337,10 @@ if __name__ == '__main__':
                 main(strInput, options.repeat)
             else:
                 break
-            print((parser.print_help()))
+            print(parser.print_help())
     else:
         if exists(options.file):
             parse_file(options.file)
         else:
-            print(("File {0} does not exist. Exit".format(options.file)))
-            print((parser.print_help()))
+            print("File {0} does not exist. Exit".format(options.file))
+            print(parser.print_help())
